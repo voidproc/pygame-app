@@ -1,51 +1,62 @@
 import pygame
 import math
+import config
+import draw_text
 
-window_size = (640, 480)
 
-# Initialize pygame
+class App:
+  def __init__(self):
+    pygame.init()
 
-pygame.init()
-screen = pygame.display.set_mode(window_size)
-clock = pygame.time.Clock()
+    self.screen = pygame.display.set_mode(config.SCREEN_SIZE)
+    self.clock = pygame.time.Clock()
+    self.running = True
+    self.frame = 0
 
-# Assets
+    self._load_assets()
 
-font_message = pygame.font.Font("fonts/JF-Dot-MPlus10.ttf", 10)
 
-# Main Loop
+  def run(self):
+    while self.running:
+      # イベント処理
+      self._dispatch_events()
 
-running = True
-frame = 0
+      # ゲームの描画処理
+      self._draw()
 
-while running:
-  # Event polling
+      # 描画内容を画面に転送
+      pygame.display.flip()
 
-  for event in pygame.event.get():
-    if event.type == pygame.QUIT:
-      running = False
+      # FPS制御
+      self.clock.tick(60)
 
-  # Clear main surface
+      self.frame += 1
 
-  screen.fill("black")
 
-  # Font rendering
+  def _load_assets(self):
+    self.fonts = { 'message': pygame.font.Font('fonts/JF-Dot-MPlus10.ttf', 20) }
 
-  color = (255, 255 - 128 * (math.floor(frame / 2) % 2), 255)
-  message = "これはpygameでフォント描画をするサンプルです."
-  message_surface = font_message.render(message, False, color)
-  msg_w, msg_h = message_surface.get_size()
-  screen.blit(
-    message_surface,
-    (window_size[0] / 2 - msg_w / 2, window_size[1] / 2 - msg_h / 2),
-  )
 
-  # Render to display
+  def _dispatch_events(self):
+    for event in pygame.event.get():
+      if event.type == pygame.QUIT:
+        self.running = False
 
-  pygame.display.flip()
 
-  # 60fps wait
+  def _draw(self):
+    # スクリーンをクリア
+    self.screen.fill((32, 32, 32))
 
-  clock.tick(60)
+    # 画面の中央にメッセージを表示する
+    color = (255, 255 - 32 * (math.floor(self.frame / 2) % 2), 255)
+    message = 'これはpygameでフォント描画をするサンプルです.'
+    draw_text.draw_text_center(self.screen, message, self.fonts['message'], color)
 
-  frame += 1
+
+def main():
+  app = App()
+  app.run()
+
+
+if __name__ == '__main__':
+  main()
